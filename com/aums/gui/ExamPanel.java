@@ -1,0 +1,46 @@
+package com.aums.gui;
+
+import com.aums.dao.ExamDAO;
+import com.aums.models.Exam;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.SQLException;
+import java.util.List;
+
+public class ExamPanel extends JPanel {
+    private JTable table;
+    private DefaultTableModel model;
+    private ExamDAO dao = new ExamDAO();
+
+    public ExamPanel() {
+        setLayout(new BorderLayout());
+        model = new DefaultTableModel();
+        table = new JTable(model);
+        JScrollPane scroll = new JScrollPane(table);
+        add(scroll, BorderLayout.CENTER);
+
+        JButton refresh = new JButton("Refresh");
+        refresh.addActionListener(e -> loadData());
+        JPanel top = new JPanel();
+        top.add(refresh);
+        add(top, BorderLayout.NORTH);
+
+        // Define table columns
+        model.setColumnIdentifiers(new Object[]{"exam_code", "exam_date", "exam_time", "room_no", "subject_id"});
+        loadData();
+    }
+
+    private void loadData() {
+        try {
+            List<Exam> list = dao.getAll();
+            model.setRowCount(0);
+            for (Exam obj : list) {
+                model.addRow(new Object[]{obj.getExam_code(), obj.getExam_date(), obj.getExam_time(), obj.getRoom_no(), obj.getSubject_id()});
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
